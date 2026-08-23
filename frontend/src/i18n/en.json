@@ -1,0 +1,79 @@
+{
+  "welcome": {
+    "title": "Welcome to MediKiosk",
+    "subtitle": "AI-Assisted Patient Intake",
+    "desc": "A smarter way to share your health story before your consultation.",
+    "chooseLanguage": "Choose your language",
+    "continue": "Continue",
+    "poweredBy": "Powered by AI"
+  },
+  "consent": {
+    "title": "Your Privacy & Consent",
+    "subtitle": "Please read carefully before continuing",
+    "listen": "Listen",
+    "agree": "I Agree & Continue",
+    "back": "Go Back",
+    "points": [
+      "Your responses will be recorded and processed securely.",
+      "Uploaded medical documents may be processed using OCR and AI.",
+      "An AI-assisted clinical summary will be generated as a draft.",
+      "This information will be shared only with your assigned doctor.",
+      "Your doctor makes all final clinical decisions — the AI assists, not diagnoses.",
+      "You may withdraw consent at any time before submission."
+    ]
+  },
+  "registration": {
+    "title": "Patient Details",
+    "subtitle": "Help us find or create your record",
+    "newPatient": "New Patient",
+    "existingPatient": "Existing Patient",
+    "name": "Full Name",
+    "age": "Age",
+    "gender": "Gender",
+    "phone": "Phone Number",
+    "language": "Preferred Language",
+    "abhaId": "ABHA ID (optional)",
+    "next": "Continue",
+    "genderOptions": ["Male", "Female", "Other", "Prefer not to say"]
+  },
+  "interview": {
+    "title": "Tell us about your health",
+    "subtitle": "Answer using your voice, touch, or keyboard",
+    "speak": "Tap to Speak",
+    "speaking": "Listening...",
+    "orType": "or type your answer",
+    "next": "Next Question",
+    "skip": "Skip",
+    "done": "I'm done answering"
+  },
+  "documents": {
+    "title": "Previous Medical Records",
+    "subtitle": "Upload any reports, prescriptions or discharge summaries",
+    "upload": "Upload Document",
+    "skip": "Skip — I have no documents",
+    "next": "Continue",
+    "types": ["Prescription", "Lab Report", "Discharge Summary", "Scan/X-Ray", "Other"]
+  },
+  "review": {
+    "title": "Review Your Information",
+    "subtitle": "Please confirm everything looks correct before we send it to your doctor",
+    "edit": "Edit",
+    "confirm": "Confirm & Submit",
+    "chiefComplaint": "Chief Complaint",
+    "duration": "Duration",
+    "history": "Past Medical History",
+    "medications": "Current Medications",
+    "allergies": "Allergies",
+    "documents": "Uploaded Documents"
+  },
+  "confirmation": {
+    "title": "Submitted Successfully",
+    "subtitle": "Your information has been sent to the doctor's queue.",
+    "message": "Please take a seat. Your doctor will review your case shortly.",
+    "patientId": "Your Patient ID"
+  },
+  "nav": {
+    "home": "Home",
+    "back": "Back"
+  }
+}
