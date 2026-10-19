@@ -1,7 +1,37 @@
 // src/pages/RoleSelection.jsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Stethoscope, ShieldCheck } from 'lucide-react';
+import { User, Stethoscope, ShieldCheck, ArrowRight } from 'lucide-react';
+
+const ROLES = [
+  {
+    id: 'patient',
+    icon: User,
+    label: 'Patient',
+    labelHi: 'मरीज',
+    desc: 'Register and complete your intake',
+    path: '/patient/welcome',
+    color: '#167765',
+  },
+  {
+    id: 'doctor',
+    icon: Stethoscope,
+    label: 'Doctor',
+    labelHi: 'डॉक्टर',
+    desc: 'Review patients and consultations',
+    path: '/doctor/login',
+    color: '#374151',
+  },
+  {
+    id: 'admin',
+    icon: ShieldCheck,
+    label: 'Admin',
+    labelHi: 'व्यवस्थापक',
+    desc: 'Manage clinic settings and data',
+    path: '/admin/login',
+    color: '#374151',
+  },
+];
 
 export default function RoleSelection() {
   const navigate = useNavigate();
@@ -9,189 +39,120 @@ export default function RoleSelection() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0F172A 0%, #1E3A5F 50%, #0F172A 100%)',
+      background: 'var(--color-bg)',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
       padding: '2rem 1.5rem',
-      position: 'relative',
-      overflow: 'hidden',
     }}>
-      {/* Background orbs */}
-      <div style={{
-        position: 'absolute', top: '15%', left: '10%',
-        width: 400, height: 400,
-        background: 'radial-gradient(circle, rgba(37,99,235,0.18) 0%, transparent 70%)',
-        pointerEvents: 'none',
-      }} />
-      <div style={{
-        position: 'absolute', bottom: '15%', right: '10%',
-        width: 300, height: 300,
-        background: 'radial-gradient(circle, rgba(6,182,212,0.15) 0%, transparent 70%)',
-        pointerEvents: 'none',
-      }} />
+      <div style={{ width: '100%', maxWidth: 600 }} className="animate-fadeInUp">
 
-      <div style={{ width: '100%', maxWidth: 800, position: 'relative', zIndex: 1 }} className="animate-fadeInUp">
-        {/* Brand / Logo */}
-        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+        {/* Brand header */}
+        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <div style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            width: 88, height: 88,
-            borderRadius: 28,
-            background: 'linear-gradient(135deg, #2563EB 0%, #06B6D4 100%)',
-            boxShadow: '0 20px 60px rgba(37,99,235,0.45)',
-            marginBottom: '1.25rem',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 48,
+            height: 48,
+            borderRadius: 10,
+            background: '#167765',
+            marginBottom: '1rem',
           }}>
-            <Stethoscope size={44} color="white" />
+            <span style={{ color: 'white', fontWeight: 700, fontSize: '1.25rem' }}>M</span>
           </div>
           <h1 style={{
-            fontSize: 'clamp(2.5rem, 6vw, 4rem)',
-            fontWeight: 900,
-            color: 'white',
-            letterSpacing: '-0.02em',
-            lineHeight: 1.1,
-            marginBottom: '0.5rem',
-            fontFamily: "'Poppins', sans-serif",
+            fontSize: '1.375rem',
+            fontWeight: 600,
+            color: 'var(--color-text-primary)',
+            marginBottom: '0.375rem',
           }}>
-            Medi<span style={{ color: '#06B6D4' }}>Kiosk</span>
+            MediKiosk
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '1.125rem', fontWeight: 500 }}>
-            Select your role to continue / आगे बढ़ने के लिए अपनी भूमिका चुनें
+          <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+            Select your role to continue
           </p>
         </div>
 
-        {/* Roles Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '1.5rem',
-          marginBottom: '1.75rem',
-        }}>
-          {/* Patient Role */}
-          <button
-            onClick={() => navigate('/patient/welcome')}
-            className="card-glass"
-            style={{
-              padding: '2.5rem 1.5rem',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '1rem',
-              cursor: 'pointer',
-              border: '1px solid rgba(255,255,255,0.1)',
-              background: 'rgba(255, 255, 255, 0.08)',
-              transition: 'all 0.2s ease',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,0,0,0.2)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
-          >
-            <div style={{
-              width: 64, height: 64, borderRadius: 16,
-              background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              marginBottom: '0.5rem'
-            }}>
-              <User size={32} color="white" />
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <h2 style={{ color: 'white', fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.25rem' }}>Patient</h2>
-              <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.125rem', fontWeight: 600 }}>मरीज</h3>
-            </div>
-          </button>
+        {/* Role cards */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {ROLES.map(({ id, icon: Icon, label, labelHi, desc, path, color }) => (
+            <button
+              key={id}
+              id={`role-${id}`}
+              onClick={() => navigate(path)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem',
+                padding: '1.125rem 1.25rem',
+                background: 'white',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-lg)',
+                cursor: 'pointer',
+                textAlign: 'left',
+                transition: 'border-color 0.15s ease, background 0.15s ease',
+                width: '100%',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = '#167765';
+                e.currentTarget.style.background = '#FAFAFA';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = 'var(--color-border)';
+                e.currentTarget.style.background = 'white';
+              }}
+            >
+              {/* Icon */}
+              <div style={{
+                width: 40,
+                height: 40,
+                borderRadius: 8,
+                background: id === 'patient' ? '#EAF4F1' : '#F5F5F4',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                <Icon size={20} color={color} />
+              </div>
 
-          {/* Doctor Role */}
-          <button
-            onClick={() => navigate('/doctor/login')}
-            className="card-glass"
-            style={{
-              padding: '2.5rem 1.5rem',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '1rem',
-              cursor: 'pointer',
-              border: '1px solid rgba(255,255,255,0.1)',
-              background: 'rgba(255, 255, 255, 0.08)',
-              transition: 'all 0.2s ease',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,0,0,0.2)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
-          >
-            <div style={{
-              width: 64, height: 64, borderRadius: 16,
-              background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              marginBottom: '0.5rem'
-            }}>
-              <Stethoscope size={32} color="white" />
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <h2 style={{ color: 'white', fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.25rem' }}>Doctor</h2>
-              <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.125rem', fontWeight: 600 }}>डॉक्टर</h3>
-            </div>
-          </button>
+              {/* Text */}
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                  <span style={{ fontWeight: 600, fontSize: '0.9375rem', color: 'var(--color-text-primary)' }}>
+                    {label}
+                  </span>
+                  <span style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
+                    {labelHi}
+                  </span>
+                </div>
+                <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginTop: 2 }}>
+                  {desc}
+                </p>
+              </div>
 
-          {/* Admin Role */}
-          <button
-            onClick={() => navigate('/admin/login')}
-            className="card-glass"
-            style={{
-              padding: '2.5rem 1.5rem',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '1rem',
-              cursor: 'pointer',
-              border: '1px solid rgba(255,255,255,0.1)',
-              background: 'rgba(255, 255, 255, 0.08)',
-              transition: 'all 0.2s ease',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,0,0,0.2)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
-          >
-            <div style={{
-              width: 64, height: 64, borderRadius: 16,
-              background: 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              marginBottom: '0.5rem'
-            }}>
-              <ShieldCheck size={32} color="white" />
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <h2 style={{ color: 'white', fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.25rem' }}>Admin</h2>
-              <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.125rem', fontWeight: 600 }}>व्यवस्थापक</h3>
-            </div>
-          </button>
+              {/* Arrow */}
+              <ArrowRight size={16} color="var(--color-text-muted)" style={{ flexShrink: 0 }} />
+            </button>
+          ))}
         </div>
+
+        {/* Footer */}
+        <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.75rem', marginTop: '2rem' }}>
+          Patient Intake System · All data encrypted
+        </p>
       </div>
+
+      {/* Responsive role cards stack */}
+      <style>{`
+        @media (max-width: 640px) {
+          #role-patient, #role-doctor, #role-admin {
+            padding: 1rem !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

@@ -17,32 +17,23 @@ export default function Interview() {
 
   const [currentQ, setCurrentQ] = useState(null);
   const [loadingQuestion, setLoadingQuestion] = useState(true);
-  
   const [textInput, setTextInput] = useState('');
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [scaleValue, setScaleValue] = useState(null);
-  
   const [answered, setAnswered] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const chatEndRef = useRef(null);
 
-  // Initialize Interview Session & Fetch Next Question
   useEffect(() => {
     async function initSession() {
       if (patientId) {
         try {
-          // If we already have a session, we can just fetch next,
-          // but create() handles finding 'in-progress' robustly and returns responses
           const { data } = await interviewAPI.create({ patientId, language });
           const session = data.interview;
           setInterviewSessionId(session._id);
-          
-          // Hydrate past answers for resume functionality
           if (session.responses) {
             setAnswered(session.responses.map(r => ({ q: r.question, a: r.answer })));
           }
-
-          // Fetch the next question
           fetchNextQuestion(session._id);
         } catch (err) {
           console.error('Failed to create/resume interview session', err);
@@ -78,14 +69,12 @@ export default function Interview() {
     navigate('/patient/documents');
   };
 
-  // Speak question aloud when it changes
   useEffect(() => {
     if (currentQ && !loadingQuestion) {
       setTimeout(() => speak(currentQ.text), 500);
     }
   }, [currentQ, loadingQuestion]);
 
-  // Sync STT transcript to text input
   useEffect(() => {
     if (transcript) setTextInput(transcript);
   }, [transcript]);
@@ -108,27 +97,20 @@ export default function Interview() {
     setIsSubmitting(true);
     try {
       const isFirst = answered.length === 0;
-      
       await interviewAPI.answer(interview.sessionId, {
         questionId: currentQ.questionId,
         question: currentQ.text,
         answer: answer,
         ...(isFirst ? { chiefComplaint: answer } : {})
       });
-
       if (isFirst) setChiefComplaint(answer);
       addInterviewResponse(currentQ.text, answer);
       setAnswered(prev => [...prev, { q: currentQ.text, a: answer }]);
-      
-      // Reset inputs
       setTextInput('');
       setSelectedOptions([]);
       setScaleValue(null);
       clearTranscript();
-
-      // Get next
       await fetchNextQuestion(interview.sessionId);
-      
     } catch (err) {
       console.error('Failed to save answer', err);
     } finally {
@@ -138,12 +120,10 @@ export default function Interview() {
 
   const toggleOption = (opt) => {
     const noneText = language === 'hi' ? 'इनमें से कोई नहीं' : 'None of them';
-    
     if (opt === noneText) {
       setSelectedOptions(prev => prev.includes(noneText) ? [] : [noneText]);
       return;
     }
-
     setSelectedOptions(prev => {
       const filtered = prev.filter(o => o !== noneText);
       return filtered.includes(opt) ? filtered.filter(o => o !== opt) : [...filtered, opt];
@@ -151,33 +131,73 @@ export default function Interview() {
   };
 
   const SEVERITY_LABELS = language === 'hi'
-    ? ['😊 हल्का', '😐 मध्यम', '😣 गंभीर', '😫 बहुत गंभीर']
-    : ['😊 Mild', '😐 Moderate', '😣 Severe', '😫 Very Severe'];
+    ? ['हल्का', 'मध्यम', 'गंभीर', 'बहुत गंभीर']
+    : ['Mild', 'Moderate', 'Severe', 'Very Severe'];
 
   return (
     <PatientLayout showProgress currentStep={4}>
-      <div className="max-w-3xl mx-auto space-y-5 md:space-y-6">
-        <div className="text-center">
-          <h1 className="text-xl font-bold text-[var(--color-text-primary)]">{t('interview.title')}</h1>
-          <p className="text-[var(--color-text-secondary)] text-sm mt-1">{t('interview.subtitle')}</p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+
+        {/* Header */}
+        <div>
+          <p style={{
+            fontSize: '0.6875rem',
+            fontWeight: 600,
+            color: 'var(--color-text-muted)',
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            marginBottom: '0.5rem',
+          }}>
+            Step 4 of 6
+          </p>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '0.375rem' }}>
+            {t('interview.title')}
+          </h1>
+          <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+            {t('interview.subtitle')}
+          </p>
         </div>
 
         {/* Conversation history */}
         {answered.length > 0 && (
-          <div className="card p-4 md:p-6 max-h-64 md:max-h-96 overflow-y-auto space-y-4">
+          <div style={{
+            background: 'white',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-lg)',
+            padding: '1rem',
+            maxHeight: 240,
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.875rem',
+          }}>
             {answered.map((item, i) => (
-              <div key={i} className="space-y-1.5">
-                <div className="flex items-start gap-2">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#2563EB] to-[#06B6D4] flex-shrink-0 flex items-center justify-center text-white text-xs font-bold">
-                    AI
+              <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.625rem' }}>
+                  <div style={{
+                    width: 22, height: 22, borderRadius: '50%',
+                    background: 'var(--color-surface-2)',
+                    border: '1px solid var(--color-border)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '0.6rem', fontWeight: 700, color: 'var(--color-text-muted)',
+                    flexShrink: 0,
+                  }}>
+                    Q
                   </div>
-                  <p className="text-xs text-[var(--color-text-secondary)] bg-[var(--color-surface-2)] px-3 py-2 rounded-xl rounded-tl-none">{item.q}</p>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>{item.q}</p>
                 </div>
-                <div className="flex items-start gap-2 justify-end">
-                  <p className="text-xs text-white bg-[#2563EB] px-3 py-2 rounded-xl rounded-tr-none max-w-[80%] whitespace-pre-wrap">{item.a}</p>
-                  <div className="w-6 h-6 rounded-full bg-slate-200 flex-shrink-0 flex items-center justify-center text-xs font-bold text-slate-600">
-                    P
-                  </div>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.625rem', justifyContent: 'flex-end' }}>
+                  <p style={{
+                    fontSize: '0.8125rem',
+                    color: 'white',
+                    background: '#167765',
+                    padding: '0.375rem 0.75rem',
+                    borderRadius: '6px',
+                    borderTopRightRadius: 2,
+                    maxWidth: '80%',
+                  }}>
+                    {item.a}
+                  </p>
                 </div>
               </div>
             ))}
@@ -185,32 +205,58 @@ export default function Interview() {
           </div>
         )}
 
-        {/* Loading State */}
+        {/* Loading */}
         {loadingQuestion && (
-          <div className="flex justify-center py-6">
-            <Loader2 className="animate-spin text-[#2563EB]" size={32} />
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
+            <Loader2 size={24} style={{ color: 'var(--color-primary)', animation: 'spin 1.2s linear infinite' }} />
           </div>
         )}
 
-        {/* Current question card */}
+        {/* Current question */}
         {!loadingQuestion && currentQ && (
           <>
-            <div className="card p-5 border-l-4 border-[#2563EB] shadow-md shadow-blue-500/5">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#2563EB] to-[#06B6D4] flex-shrink-0 flex items-center justify-center text-white text-xs font-bold">
-                  AI
+            {/* Question card */}
+            <div style={{
+              background: 'white',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-lg)',
+              padding: '1.125rem 1.25rem',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                <div style={{
+                  width: 28, height: 28,
+                  borderRadius: '50%',
+                  background: 'var(--color-accent-light)',
+                  border: '1px solid var(--color-border)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0,
+                  fontSize: '0.6875rem', fontWeight: 700, color: 'var(--color-primary)',
+                }}>
+                  Q
                 </div>
-                <div className="flex-1">
-                  <p className="text-[var(--color-text-primary)] font-medium leading-relaxed">
+                <div style={{ flex: 1 }}>
+                  <p style={{ color: 'var(--color-text-primary)', fontWeight: 500, lineHeight: 1.6, fontSize: '0.9375rem' }}>
                     {currentQ.text}
                   </p>
                   <button
                     onClick={() => isSpeaking ? stopSpeaking() : speak(currentQ.text)}
-                    className="mt-2 text-xs text-[var(--color-text-muted)] hover:text-[#2563EB] flex items-center gap-1 transition-colors"
+                    style={{
+                      marginTop: '0.5rem',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.25rem',
+                      fontSize: '0.75rem',
+                      color: 'var(--color-text-muted)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: 0,
+                      fontFamily: 'Inter, sans-serif',
+                    }}
                   >
                     {isSpeaking ? (
                       <>
-                        <div className="w-2 h-2 bg-red-500 rounded-sm"></div>
+                        <div style={{ width: 6, height: 6, background: '#DC2626', borderRadius: 2 }} />
                         {language === 'hi' ? 'रोकें' : 'Stop'}
                       </>
                     ) : (
@@ -224,20 +270,33 @@ export default function Interview() {
               </div>
             </div>
 
-            {/* Answer area by type */}
+            {/* Scale question */}
             {currentQ.type === 'scale' && (
-              <div className="card p-5 space-y-4">
-                <div className="grid grid-cols-2 gap-3">
+              <div style={{
+                background: 'white',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-lg)',
+                padding: '1.125rem',
+              }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem' }}>
                   {SEVERITY_LABELS.map((label, i) => (
                     <button
                       key={i}
                       id={`severity-${i+1}`}
                       onClick={() => { setScaleValue((i+1)*2.5); handleSubmitAnswer(`${label} (${Math.round((i+1)*2.5)}/10)`); }}
-                      className={`py-4 rounded-xl text-sm font-semibold touch-target border-2 transition-all duration-150 ${
-                        scaleValue === (i+1)*2.5
-                          ? 'bg-[#2563EB] border-[#2563EB] text-white scale-105'
-                          : 'border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[#2563EB] hover:text-[#2563EB]'
-                      }`}
+                      style={{
+                        padding: '0.875rem 1rem',
+                        borderRadius: 'var(--radius-md)',
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                        border: `1px solid ${scaleValue === (i+1)*2.5 ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                        background: scaleValue === (i+1)*2.5 ? 'var(--color-accent-light)' : 'white',
+                        color: scaleValue === (i+1)*2.5 ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                        transition: 'all 0.15s',
+                        fontFamily: 'Inter, sans-serif',
+                        minHeight: 52,
+                      }}
                     >
                       {label}
                     </button>
@@ -246,28 +305,59 @@ export default function Interview() {
               </div>
             )}
 
+            {/* Yes/No question */}
             {currentQ.type === 'yesno' && (
-              <div className="grid grid-cols-2 gap-3">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem' }}>
                 {[
-                  { val: language === 'hi' ? 'हाँ' : 'Yes', emoji: '✅' },
-                  { val: language === 'hi' ? 'नहीं' : 'No',  emoji: '❌' },
-                ].map(({ val, emoji }) => (
+                  { val: language === 'hi' ? 'हाँ' : 'Yes' },
+                  { val: language === 'hi' ? 'नहीं' : 'No' },
+                ].map(({ val }) => (
                   <button
                     key={val}
                     id={`yesno-${val}`}
                     onClick={() => handleSubmitAnswer(val)}
-                    className="py-5 rounded-xl flex flex-col items-center gap-2 text-base font-bold touch-target border-2 border-[var(--color-border)] hover:border-[#2563EB] hover:bg-blue-50 transition-all duration-150"
+                    style={{
+                      padding: '1rem',
+                      borderRadius: 'var(--radius-md)',
+                      fontSize: '0.9375rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      border: '1px solid var(--color-border)',
+                      background: 'white',
+                      color: 'var(--color-text-primary)',
+                      transition: 'all 0.15s',
+                      fontFamily: 'Inter, sans-serif',
+                      minHeight: 56,
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.borderColor = 'var(--color-primary)';
+                      e.currentTarget.style.color = 'var(--color-primary)';
+                      e.currentTarget.style.background = 'var(--color-accent-light)';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.borderColor = 'var(--color-border)';
+                      e.currentTarget.style.color = 'var(--color-text-primary)';
+                      e.currentTarget.style.background = 'white';
+                    }}
                   >
-                    <span className="text-3xl">{emoji}</span>
                     {val}
                   </button>
                 ))}
               </div>
             )}
 
+            {/* Multi-select question */}
             {currentQ.type === 'multi' && (
-              <div className="card p-4 space-y-3">
-                <div className="flex flex-wrap gap-2">
+              <div style={{
+                background: 'white',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-lg)',
+                padding: '1.125rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.75rem',
+              }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                   {[...(currentQ.options || []), language === 'hi' ? 'इनमें से कोई नहीं' : 'None of them']
                     .filter((opt, index, self) => self.indexOf(opt) === index)
                     .map(opt => (
@@ -275,11 +365,18 @@ export default function Interview() {
                       key={opt}
                       id={`opt-${opt}`}
                       onClick={() => toggleOption(opt)}
-                      className={`px-4 py-2 rounded-xl text-sm font-medium border-2 transition-all duration-150 touch-target ${
-                        selectedOptions.includes(opt)
-                          ? 'bg-[#2563EB] border-[#2563EB] text-white'
-                          : 'border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[#2563EB]'
-                      }`}
+                      style={{
+                        padding: '0.4375rem 0.875rem',
+                        borderRadius: 'var(--radius-md)',
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                        border: `1px solid ${selectedOptions.includes(opt) ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                        background: selectedOptions.includes(opt) ? 'var(--color-accent-light)' : 'white',
+                        color: selectedOptions.includes(opt) ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                        transition: 'all 0.15s',
+                        fontFamily: 'Inter, sans-serif',
+                      }}
                     >
                       {opt}
                     </button>
@@ -288,65 +385,145 @@ export default function Interview() {
                 <Button
                   variant="primary"
                   size="md"
-                  className="w-full"
+                  style={{ width: '100%' }}
                   disabled={selectedOptions.length === 0 || isSubmitting}
                   onClick={() => handleSubmitAnswer(selectedOptions.join(', '))}
                 >
                   {language === 'hi' ? 'जारी रखें' : 'Continue'}
-                  <ChevronRight size={18} />
+                  <ChevronRight size={16} />
                 </Button>
               </div>
             )}
 
+            {/* Open / text question */}
             {(currentQ.type === 'open' || !currentQ.type) && (
-              <div className="card p-4 space-y-3">
+              <div style={{
+                background: 'white',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-lg)',
+                padding: '1.125rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.75rem',
+              }}>
                 {/* Voice button */}
                 {isSupported ? (
                   <button
                     id="btn-voice-toggle"
                     onClick={isListening ? stopListening : startListening}
-                    className={`
-                      w-full py-4 rounded-xl flex flex-col items-center gap-2
-                      touch-target border-2 font-semibold transition-all duration-200
-                      ${isListening
-                        ? 'bg-[#EF4444] border-[#EF4444] text-white animate-pulse'
-                        : 'border-[#2563EB] text-[#2563EB] hover:bg-blue-50'
-                      }
-                    `}
+                    style={{
+                      position: 'relative',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                      width: '100%',
+                      padding: '1.25rem',
+                      borderRadius: 'var(--radius-lg)',
+                      border: `1px solid ${isListening ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                      background: isListening ? 'var(--color-accent-light)' : 'white',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      fontFamily: 'Inter, sans-serif',
+                    }}
                   >
-                    {isListening ? <MicOff size={24} /> : <Mic size={24} />}
-                    {isListening ? t('interview.speaking') : t('interview.speak')}
+                    {/* Mic button circle */}
+                    <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {isListening && (
+                        <div style={{
+                          position: 'absolute',
+                          inset: -8,
+                          borderRadius: '50%',
+                          border: '2px solid var(--color-primary)',
+                          opacity: 0,
+                          animation: 'listening-pulse 1.5s ease-in-out infinite',
+                        }} />
+                      )}
+                      <div style={{
+                        width: 52,
+                        height: 52,
+                        borderRadius: '50%',
+                        background: isListening ? '#167765' : 'var(--color-surface-2)',
+                        border: `1.5px solid ${isListening ? 'transparent' : 'var(--color-border)'}`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}>
+                        {isListening
+                          ? <MicOff size={22} color="white" />
+                          : <Mic size={22} color="var(--color-text-secondary)" />
+                        }
+                      </div>
+                    </div>
+                    <span style={{
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      color: isListening ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                    }}>
+                      {isListening ? t('interview.speaking') : t('interview.speak')}
+                    </span>
                   </button>
                 ) : (
-                  <div className="w-full py-3 rounded-xl bg-gray-50 flex items-center justify-center text-sm text-[var(--color-text-muted)] gap-2 border border-gray-200">
-                    <AlertCircle size={16} />
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.75rem',
+                    background: 'var(--color-surface-2)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-md)',
+                    fontSize: '0.8125rem',
+                    color: 'var(--color-text-muted)',
+                  }}>
+                    <AlertCircle size={14} />
                     {language === 'hi' ? 'ध्वनि इनपुट अनुपलब्ध है। कृपया टाइप करें।' : 'Voice input is unavailable. You can type your answer.'}
                   </div>
                 )}
 
                 {/* Text input */}
-                <div className="relative">
-                  <textarea
-                    id="interview-text-input"
-                    value={textInput}
-                    onChange={e => setTextInput(e.target.value)}
-                    placeholder={t('interview.orType')}
-                    rows={3}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-[var(--color-border)] focus:border-[#2563EB] bg-white text-[var(--color-text-primary)] text-base resize-none outline-none transition-colors"
-                    onKeyDown={e => {
-                      if (e.key === 'Enter' && !e.shiftKey && textInput.trim()) {
-                        e.preventDefault();
-                        handleSubmitAnswer();
-                      }
-                    }}
-                  />
-                </div>
+                <textarea
+                  id="interview-text-input"
+                  value={textInput}
+                  onChange={e => setTextInput(e.target.value)}
+                  placeholder={t('interview.orType')}
+                  rows={3}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem 0.875rem',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-md)',
+                    background: 'white',
+                    color: 'var(--color-text-primary)',
+                    fontSize: '0.9375rem',
+                    fontFamily: 'Inter, sans-serif',
+                    resize: 'none',
+                    outline: 'none',
+                    transition: 'border-color 0.15s',
+                  }}
+                  onFocus={e => { e.target.style.borderColor = 'var(--color-primary)'; e.target.style.boxShadow = '0 0 0 2px rgba(22,119,101,0.1)'; }}
+                  onBlur={e => { e.target.style.borderColor = 'var(--color-border)'; e.target.style.boxShadow = 'none'; }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && !e.shiftKey && textInput.trim()) {
+                      e.preventDefault();
+                      handleSubmitAnswer();
+                    }
+                  }}
+                />
 
-                <div className="flex gap-2">
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <button
                     onClick={() => handleSubmitAnswer(language === 'hi' ? 'छोड़ें' : 'Skip')}
                     disabled={isSubmitting}
-                    className="px-4 py-2.5 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-colors disabled:opacity-50"
+                    style={{
+                      padding: '0.5rem 0.875rem',
+                      fontSize: '0.8125rem',
+                      color: 'var(--color-text-muted)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontFamily: 'Inter, sans-serif',
+                    }}
                   >
                     {t('interview.skip')}
                   </button>
@@ -354,12 +531,12 @@ export default function Interview() {
                     id="btn-interview-next"
                     variant="primary"
                     size="md"
-                    className="flex-1"
+                    style={{ flex: 1 }}
                     disabled={!textInput.trim() || isSubmitting}
                     onClick={() => handleSubmitAnswer()}
                   >
                     {t('interview.next')}
-                    <Send size={16} />
+                    <Send size={14} />
                   </Button>
                 </div>
               </div>

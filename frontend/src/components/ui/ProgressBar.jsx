@@ -14,9 +14,9 @@ export function ProgressBar({ current, total, labels = [] }) {
           {percentage}%
         </span>
       </div>
-      <div className="w-full h-2 bg-[var(--color-border)] rounded-full overflow-hidden">
+      <div className="w-full h-[2px] bg-[var(--color-border)] rounded-full overflow-hidden">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-[#2563EB] to-[#06B6D4] transition-all duration-500 ease-out"
+          className="h-full rounded-full bg-[#167765] transition-all duration-400 ease-out"
           style={{ width: `${percentage}%` }}
         />
       </div>

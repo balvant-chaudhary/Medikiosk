@@ -2,12 +2,12 @@
 import React from 'react';
 
 export function Spinner({ size = 'md', className = '' }) {
-  const sizes = { sm: 'w-4 h-4', md: 'w-8 h-8', lg: 'w-12 h-12', xl: 'w-16 h-16' };
+  const sizes = { sm: 'w-4 h-4', md: 'w-7 h-7', lg: 'w-10 h-10', xl: 'w-14 h-14' };
   return (
     <div className={`${sizes[size]} ${className}`}>
       <svg className="animate-spin-slow text-[var(--color-primary)]" viewBox="0 0 24 24" fill="none">
-        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3"/>
-        <path className="opacity-75" fill="currentColor"
+        <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5"/>
+        <path className="opacity-80" fill="currentColor"
           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
       </svg>
     </div>
@@ -17,13 +17,23 @@ export function Spinner({ size = 'md', className = '' }) {
 export function LoadingScreen({ message = 'Loading...' }) {
   return (
     <div className="fixed inset-0 bg-[var(--color-bg)] flex flex-col items-center justify-center gap-4 z-50">
-      <div className="relative">
-        <div className="w-16 h-16 rounded-full bg-gradient-to-r from-[#2563EB] to-[#06B6D4] flex items-center justify-center">
-          <span className="text-white text-2xl">🏥</span>
-        </div>
-        <div className="absolute inset-0 rounded-full border-2 border-[#2563EB] opacity-30 animate-ping" />
+      <div style={{
+        width: 52,
+        height: 52,
+        borderRadius: 10,
+        background: 'var(--color-accent-light)',
+        border: '1px solid var(--color-border)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M12 4C12 4 8 8 8 12C8 16 12 20 12 20" stroke="#167765" strokeWidth="2" strokeLinecap="round"/>
+          <path d="M12 4C12 4 16 8 16 12C16 16 12 20 12 20" stroke="#167765" strokeWidth="2" strokeLinecap="round"/>
+          <circle cx="12" cy="12" r="2" fill="#167765"/>
+        </svg>
       </div>
-      <p className="text-[var(--color-text-secondary)] text-sm font-medium">{message}</p>
+      <p className="text-[var(--color-text-secondary)] text-sm">{message}</p>
     </div>
   );
 }

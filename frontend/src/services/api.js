@@ -10,7 +10,13 @@ const api = axios.create({
 
 // ── Request interceptor: attach JWT from localStorage ────
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('mk_token') || localStorage.getItem('mk_patient_token');
+  let token;
+  if (window.location.pathname.startsWith('/patient')) {
+    token = localStorage.getItem('mk_patient_token') || localStorage.getItem('mk_token');
+  } else {
+    token = localStorage.getItem('mk_token') || localStorage.getItem('mk_patient_token');
+  }
+  
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });

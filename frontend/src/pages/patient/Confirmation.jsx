@@ -1,6 +1,6 @@
 // src/pages/patient/Confirmation.jsx
 import React, { useEffect, useState } from 'react';
-import { CheckCircle, Clock, ArrowRight, Home } from 'lucide-react';
+import { Check, Clock, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PatientLayout } from '../../layouts/PatientLayout';
 import { Button } from '../../components/ui/Button';
@@ -14,14 +14,7 @@ export default function Confirmation() {
   const navigate = useNavigate();
   const { patientId, registration, language, reset } = usePatient();
   const { t } = useTranslation();
-  const [count, setCount] = useState(0);
   const [queuePos] = useState(Math.floor(Math.random() * 4));
-
-  // Animated count for queue number
-  useEffect(() => {
-    const timer = setTimeout(() => setCount(queuePos + 2), 800);
-    return () => clearTimeout(timer);
-  }, []);
 
   const handleNewPatient = () => {
     reset();
@@ -29,106 +22,155 @@ export default function Confirmation() {
   };
 
   const queuePosition = language === 'hi' ? QUEUE_POSITIONS_HI[queuePos] : QUEUE_POSITIONS_EN[queuePos];
-  const estWait = (queuePos + 2) * 8; // Rough estimate in minutes
+  const estWait = (queuePos + 2) * 8;
 
   return (
     <PatientLayout showProgress={false} showBack={false} currentStep={6}>
-      <div className="text-center space-y-6 py-6">
-        {/* Success animation */}
-        <div className="relative inline-flex items-center justify-center">
-          <div className="w-28 h-28 rounded-full bg-emerald-50 border-4 border-emerald-100 flex items-center justify-center">
-            <CheckCircle size={56} className="text-[var(--color-success)]" />
+      <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingTop: '1rem' }}>
+
+        {/* Success icon */}
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div style={{
+            width: 72,
+            height: 72,
+            borderRadius: '50%',
+            background: 'var(--color-accent-light)',
+            border: '2px solid var(--color-border)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <Check size={32} color="#167765" strokeWidth={2.5} />
           </div>
-          <div className="absolute inset-0 rounded-full border-2 border-emerald-200 animate-ping opacity-30" />
         </div>
 
+        {/* Heading */}
         <div>
-          <h1 className="text-3xl font-extrabold text-[var(--color-text-primary)]">
+          <h1 style={{
+            fontSize: '1.375rem',
+            fontWeight: 600,
+            color: 'var(--color-text-primary)',
+            marginBottom: '0.5rem',
+          }}>
             {t('confirmation.title')}
           </h1>
-          <p className="text-[var(--color-text-secondary)] mt-2">
+          <p style={{ fontSize: '0.9375rem', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
             {t('confirmation.subtitle')}
           </p>
         </div>
 
-        {/* Patient ID card */}
-        <div className="card p-5 mx-auto max-w-xs">
-          <p className="text-xs text-[var(--color-text-muted)] mb-1">{t('confirmation.patientId')}</p>
-          <p className="text-2xl font-bold text-[#2563EB] tracking-wider">{patientId || 'MK-DEMO'}</p>
-          <p className="text-sm text-[var(--color-text-secondary)] mt-2">
-            {registration.name || (language === 'hi' ? 'रोगी' : 'Patient')}
+        {/* Reference number */}
+        <div style={{
+          background: 'white',
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '1.25rem',
+          maxWidth: 320,
+          margin: '0 auto',
+          width: '100%',
+        }}>
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 500 }}>
+            {t('confirmation.patientId')}
           </p>
+          <p style={{ fontSize: '1.375rem', fontWeight: 700, color: 'var(--color-text-primary)', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.05em' }}>
+            {patientId || 'MK-DEMO'}
+          </p>
+          {registration?.name && (
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginTop: '0.5rem' }}>
+              {registration.name}
+            </p>
+          )}
         </div>
 
         {/* Queue info */}
-        <div className="card p-5 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="text-left">
-              <p className="text-xs text-[var(--color-text-muted)]">
-                {language === 'hi' ? 'कतार में स्थिति' : 'Queue Position'}
+        <div style={{
+          background: 'white',
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '1.25rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ textAlign: 'left' }}>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 500 }}>
+                {language === 'hi' ? 'कतार में स्थिति' : 'Queue position'}
               </p>
-              <p className="text-2xl font-bold text-[var(--color-text-primary)] mt-1">{queuePosition}</p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-text-primary)', marginTop: 2 }}>
+                {queuePosition}
+              </p>
             </div>
-            <div className="text-right">
-              <p className="text-xs text-[var(--color-text-muted)]">
-                {language === 'hi' ? 'अनुमानित प्रतीक्षा' : 'Est. Wait'}
+            <div style={{ textAlign: 'right' }}>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 500 }}>
+                {language === 'hi' ? 'अनुमानित प्रतीक्षा' : 'Est. wait time'}
               </p>
-              <p className="text-2xl font-bold text-[var(--color-text-primary)] mt-1">{estWait} min</p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-text-primary)', marginTop: 2 }}>
+                {estWait} min
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-100 rounded-xl">
-            <Clock size={16} className="text-amber-500 flex-shrink-0" />
-            <p className="text-sm text-amber-700">
+          <div style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '0.5rem',
+            padding: '0.75rem',
+            background: 'var(--color-surface-2)',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-md)',
+          }}>
+            <Clock size={14} color="var(--color-text-muted)" style={{ flexShrink: 0, marginTop: 2 }} />
+            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
               {t('confirmation.message')}
             </p>
           </div>
         </div>
 
         {/* What happens next */}
-        <div className="card p-5 text-left space-y-3">
-          <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">
-            {language === 'hi' ? 'आगे क्या होगा?' : "What happens next?"}
+        <div style={{
+          background: 'white',
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '1.25rem',
+          textAlign: 'left',
+        }}>
+          <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '0.875rem' }}>
+            {language === 'hi' ? 'आगे क्या होगा?' : 'What happens next?'}
           </h3>
-          {[
-            {
-              step: '1',
-              text: language === 'hi'
-                ? 'हमारा AI आपकी जानकारी का विश्लेषण करेगा।'
-                : 'Our AI will analyze your information.',
-            },
-            {
-              step: '2',
-              text: language === 'hi'
-                ? 'एक नैदानिक सारांश तैयार किया जाएगा।'
-                : 'A clinical summary will be prepared.',
-            },
-            {
-              step: '3',
-              text: language === 'hi'
-                ? 'आपका डॉक्टर समीक्षा करेगा और आपको बुलाएगा।'
-                : 'Your doctor will review and call you.',
-            },
-          ].map(({ step, text }) => (
-            <div key={step} className="flex items-start gap-3">
-              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#2563EB] to-[#06B6D4] flex items-center justify-center text-white text-xs font-bold flex-shrink-0 mt-0.5">
-                {step}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {[
+              language === 'hi' ? 'AI आपकी जानकारी का विश्लेषण करेगा।' : 'Your information will be reviewed.',
+              language === 'hi' ? 'एक नैदानिक सारांश तैयार किया जाएगा।' : 'A clinical summary will be prepared.',
+              language === 'hi' ? 'आपका डॉक्टर आपको बुलाएगा।' : 'Your doctor will call you shortly.',
+            ].map((text, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                <div style={{
+                  width: 22, height: 22, borderRadius: '50%',
+                  background: 'var(--color-accent-light)',
+                  border: '1px solid var(--color-border)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '0.6875rem', fontWeight: 700, color: 'var(--color-primary)',
+                  flexShrink: 0,
+                }}>
+                  {i + 1}
+                </div>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', lineHeight: 1.5, paddingTop: 2 }}>{text}</p>
               </div>
-              <p className="text-sm text-[var(--color-text-secondary)]">{text}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        {/* New patient button */}
+        {/* Actions */}
         <Button
           id="btn-confirmation-home"
-          variant="ghost"
-          size="md"
+          variant="secondary"
+          size="lg"
           icon={Home}
           onClick={handleNewPatient}
-          className="w-full"
+          style={{ width: '100%' }}
         >
-          {language === 'hi' ? 'नया रोगी' : 'Start for Another Patient'}
+          {language === 'hi' ? 'नया रोगी' : 'Start for another patient'}
         </Button>
       </div>
     </PatientLayout>

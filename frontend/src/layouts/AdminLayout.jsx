@@ -25,10 +25,80 @@ export function AdminLayout({ children }) {
     navigate('/doctor/login');
   };
 
+  const SidebarContent = () => (
+    <>
+      {/* Logo */}
+      <div style={{ padding: '1.25rem 1rem', borderBottom: '1px solid var(--color-border)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+          <div style={{
+            width: 32, height: 32,
+            borderRadius: 6,
+            background: '#167765',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+          }}>
+            <Building2 size={16} color="white" />
+          </div>
+          <div>
+            <p style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-text-primary)', lineHeight: 1.2 }}>MediKiosk</p>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', lineHeight: 1.2 }}>Admin Portal</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Nav */}
+      <nav style={{ flex: 1, padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
+          <NavLink
+            key={to}
+            to={to}
+            onClick={() => setSidebarOpen(false)}
+            className={({ isActive }) => `admin-nav-link${isActive ? ' active' : ''}`}
+          >
+            <Icon size={16} />
+            {label}
+          </NavLink>
+        ))}
+      </nav>
+
+      {/* User footer */}
+      <div style={{ padding: '0.75rem', borderTop: '1px solid var(--color-border)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.5rem 0.625rem', borderRadius: 6 }}>
+          <div style={{
+            width: 32, height: 32, borderRadius: '50%',
+            background: 'var(--color-accent-light)',
+            border: '1px solid var(--color-border)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: 'var(--color-primary)', fontWeight: 700, fontSize: '0.8125rem', flexShrink: 0,
+          }}>
+            {user?.name?.charAt(0) || 'A'}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontWeight: 500, fontSize: '0.8125rem', color: 'var(--color-text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {user?.name || 'Admin'}
+            </p>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {user?.hospital || 'MediKiosk Central'}
+            </p>
+          </div>
+          <button
+            onClick={handleLogout}
+            style={{ color: 'var(--color-text-muted)', cursor: 'pointer', background: 'none', border: 'none', padding: 4, borderRadius: 4, transition: 'color 0.15s', display: 'flex' }}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--color-danger)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--color-text-muted)'}
+            title="Logout"
+          >
+            <LogOut size={15} />
+          </button>
+        </div>
+      </div>
+    </>
+  );
+
   return (
     <div className="layout-sidebar-root">
 
-      {/* ── Desktop sidebar ───────────────────────────────── */}
+      {/* ── Desktop sidebar ─────────────────────────────────── */}
       <aside
         className="layout-sidebar"
         style={{
@@ -38,81 +108,17 @@ export function AdminLayout({ children }) {
         }}
         id="admin-sidebar"
       >
-        {/* Logo */}
-        <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--color-border)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <div style={{
-              width: 40, height: 40,
-              borderRadius: 12,
-              background: 'linear-gradient(135deg, #6366F1 0%, #2563EB 100%)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
-            }}>
-              <Building2 size={20} color="white" />
-            </div>
-            <div>
-              <p style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-text-primary)' }}>
-                MediKiosk
-              </p>
-              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Admin Portal</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Nav */}
-        <nav style={{ flex: 1, padding: '1rem', display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) => `admin-nav-link${isActive ? ' active' : ''}`}
-            >
-              <Icon size={18} />
-              {label}
-            </NavLink>
-          ))}
-        </nav>
-
-        {/* User footer */}
-        <div style={{ padding: '1rem', borderTop: '1px solid var(--color-border)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0.75rem', borderRadius: 12 }}>
-            <div style={{
-              width: 36, height: 36, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #6366F1, #2563EB)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: 'white', fontWeight: 700, fontSize: '0.875rem', flexShrink: 0,
-            }}>
-              {user?.name?.charAt(0) || 'A'}
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {user?.name || 'Admin'}
-              </p>
-              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {user?.hospital || 'MediKiosk Central'}
-              </p>
-            </div>
-            <button
-              onClick={handleLogout}
-              style={{ color: 'var(--color-text-muted)', cursor: 'pointer', background: 'none', border: 'none', padding: 4, borderRadius: 6, transition: 'color 0.15s' }}
-              onMouseEnter={e => e.currentTarget.style.color = 'var(--color-danger)'}
-              onMouseLeave={e => e.currentTarget.style.color = 'var(--color-text-muted)'}
-              title="Logout"
-            >
-              <LogOut size={16} />
-            </button>
-          </div>
-        </div>
+        <SidebarContent />
       </aside>
 
-      {/* ── Mobile top bar ────────────────────────────────── */}
+      {/* ── Mobile top bar ──────────────────────────────────── */}
       <header id="admin-mobile-header" style={{
         display: 'flex',
         alignItems: 'center',
         gap: '0.75rem',
         background: 'white',
         borderBottom: '1px solid var(--color-border)',
-        padding: '0.875rem 1rem',
+        padding: '0.75rem 1rem',
         position: 'sticky',
         top: 0,
         zIndex: 50,
@@ -121,55 +127,43 @@ export function AdminLayout({ children }) {
           onClick={() => setSidebarOpen(true)}
           style={{ color: 'var(--color-text-secondary)', cursor: 'pointer', background: 'none', border: 'none', padding: 4, display: 'flex' }}
         >
-          <Menu size={22} />
+          <Menu size={20} />
         </button>
         <span style={{ fontWeight: 600, color: 'var(--color-text-primary)', fontSize: '0.9rem' }}>
           MediKiosk Admin
         </span>
       </header>
 
-      {/* ── Mobile drawer ─────────────────────────────────── */}
+      {/* ── Mobile drawer ────────────────────────────────────── */}
       {sidebarOpen && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex' }}>
           <div
-            style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)' }}
+            style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)' }}
             onClick={() => setSidebarOpen(false)}
           />
           <aside style={{
             position: 'relative',
-            width: 280,
+            width: 240,
             background: 'white',
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
-            padding: '1.5rem 1rem',
             zIndex: 101,
+            borderRight: '1px solid var(--color-border)',
           }}>
             <button
               onClick={() => setSidebarOpen(false)}
-              style={{ position: 'absolute', top: 16, right: 16, color: 'var(--color-text-muted)', cursor: 'pointer', background: 'none', border: 'none' }}
+              style={{ position: 'absolute', top: 12, right: 12, color: 'var(--color-text-muted)', cursor: 'pointer', background: 'none', border: 'none', display: 'flex' }}
             >
-              <X size={20} />
+              <X size={18} />
             </button>
-            <div style={{ marginTop: '2.5rem', display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
-                <NavLink
-                  key={to}
-                  to={to}
-                  onClick={() => setSidebarOpen(false)}
-                  className={({ isActive }) => `admin-nav-link${isActive ? ' active' : ''}`}
-                >
-                  <Icon size={18} />
-                  {label}
-                </NavLink>
-              ))}
-            </div>
+            <SidebarContent />
           </aside>
         </div>
       )}
 
-      {/* ── Main content area ─────────────────────────────── */}
-      <main className="layout-main" style={{ padding: '2rem 2.5rem', paddingTop: '2rem' }}>
+      {/* ── Main content area ───────────────────────────────── */}
+      <main className="layout-main" style={{ padding: '1.75rem 2rem' }}>
         <div className="animate-fadeInUp">
           {children}
         </div>

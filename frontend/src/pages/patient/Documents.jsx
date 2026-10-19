@@ -1,7 +1,7 @@
 // src/pages/patient/Documents.jsx
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, X, FileText, Image, File, CheckCircle2, ArrowRight, Loader2 } from 'lucide-react';
+import { Upload, X, FileText, Image, File, Check, ArrowRight, Loader2 } from 'lucide-react';
 import { PatientLayout } from '../../layouts/PatientLayout';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
@@ -41,21 +41,14 @@ export default function Documents() {
       alert(language === 'hi' ? 'फ़ाइल 5MB से छोटी होनी चाहिए।' : 'File must be under 5MB.');
       return;
     }
-    
     setUploading(true);
     try {
       const formData = new FormData();
       formData.append('document', file);
-      // We pass patientId if needed, but the JWT already has it
-      
-      // We use require from services/api.js. We need to import it at the top.
       const { documentAPI } = await import('../../services/api');
-      
       const response = await documentAPI.upload(formData);
-      
       if (response.data.success) {
         const uploadedDoc = response.data.document;
-        // The backend returns the document info including OCR text/AI extraction
         addDocument({
           id: uploadedDoc._id,
           name: uploadedDoc.originalName,
@@ -95,35 +88,59 @@ export default function Documents() {
 
   return (
     <PatientLayout showProgress currentStep={5}>
-      <div className="space-y-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">{t('documents.title')}</h1>
-          <p className="text-[var(--color-text-secondary)] mt-1 text-sm">{t('documents.subtitle')}</p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+
+        {/* Header */}
+        <div>
+          <p style={{
+            fontSize: '0.6875rem',
+            fontWeight: 600,
+            color: 'var(--color-text-muted)',
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            marginBottom: '0.5rem',
+          }}>
+            Step 5 of 6
+          </p>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '0.375rem' }}>
+            {t('documents.title')}
+          </h1>
+          <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+            {t('documents.subtitle')}
+          </p>
         </div>
 
         {/* Document type selector */}
         <div>
-          <p className="text-sm font-medium text-[var(--color-text-primary)] mb-2">
+          <p style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: '0.5rem' }}>
             {language === 'hi' ? 'दस्तावेज़ का प्रकार चुनें' : 'Select document type'}
           </p>
-          <div className="flex flex-wrap gap-2">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
             {docTypes.map(type => {
               const Icon = TYPE_ICONS[type] || File;
+              const selected = selectedType === type;
               return (
                 <button
                   key={type}
                   id={`doc-type-${type}`}
                   onClick={() => setSelectedType(type)}
-                  className={`
-                    flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium
-                    border-2 transition-all duration-150 touch-target
-                    ${selectedType === type
-                      ? 'bg-[#2563EB] border-[#2563EB] text-white'
-                      : 'border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[#2563EB]'
-                    }
-                  `}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.375rem',
+                    padding: '0.4375rem 0.875rem',
+                    borderRadius: 'var(--radius-md)',
+                    fontSize: '0.8125rem',
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    border: `1px solid ${selected ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                    background: selected ? 'var(--color-accent-light)' : 'white',
+                    color: selected ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                    transition: 'all 0.15s',
+                    fontFamily: 'Inter, sans-serif',
+                  }}
                 >
-                  <Icon size={14} />
+                  <Icon size={13} />
                   {type}
                 </button>
               );
@@ -131,20 +148,21 @@ export default function Documents() {
           </div>
         </div>
 
-        {/* Drop zone */}
+        {/* Upload zone */}
         <div
           onDragOver={e => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
           onClick={() => fileRef.current?.click()}
-          className={`
-            relative border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer
-            transition-all duration-200
-            ${dragOver
-              ? 'border-[#2563EB] bg-blue-50 scale-[1.02]'
-              : 'border-[var(--color-border)] bg-white hover:border-[#2563EB] hover:bg-blue-50/30'
-            }
-          `}
+          style={{
+            border: `1.5px dashed ${dragOver ? 'var(--color-primary)' : 'var(--color-border)'}`,
+            borderRadius: 'var(--radius-lg)',
+            padding: '2.5rem 2rem',
+            textAlign: 'center',
+            cursor: 'pointer',
+            background: dragOver ? 'var(--color-accent-light)' : 'white',
+            transition: 'all 0.15s',
+          }}
         >
           <input
             ref={fileRef}
@@ -152,25 +170,34 @@ export default function Documents() {
             multiple
             accept=".pdf,.jpg,.jpeg,.png"
             onChange={handleFileChange}
-            className="hidden"
+            style={{ display: 'none' }}
           />
           {uploading ? (
-            <div className="flex flex-col items-center gap-3">
-              <Loader2 size={40} className="text-[#2563EB] animate-spin-slow" />
-              <p className="text-[#2563EB] font-medium text-sm">
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+              <Loader2 size={28} style={{ color: 'var(--color-primary)', animation: 'spin 1.2s linear infinite' }} />
+              <p style={{ color: 'var(--color-primary)', fontSize: '0.875rem', fontWeight: 500 }}>
                 {language === 'hi' ? 'अपलोड हो रहा है...' : 'Uploading...'}
               </p>
             </div>
           ) : (
-            <div className="flex flex-col items-center gap-3">
-              <div className="w-16 h-16 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center">
-                <Upload size={28} className="text-[#2563EB]" />
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{
+                width: 44,
+                height: 44,
+                borderRadius: 8,
+                background: 'var(--color-surface-2)',
+                border: '1px solid var(--color-border)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <Upload size={20} color="var(--color-text-secondary)" />
               </div>
               <div>
-                <p className="font-semibold text-[var(--color-text-primary)]">
+                <p style={{ fontWeight: 600, fontSize: '0.9375rem', color: 'var(--color-text-primary)' }}>
                   {t('documents.upload')}
                 </p>
-                <p className="text-[var(--color-text-muted)] text-sm mt-1">
+                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem', marginTop: 4 }}>
                   PDF, JPG, PNG · Max 10MB
                 </p>
               </div>
@@ -178,32 +205,63 @@ export default function Documents() {
           )}
         </div>
 
-        {/* Uploaded files */}
+        {/* Uploaded files list */}
         {documents.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-[var(--color-text-secondary)]">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <p style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-secondary)' }}>
               {language === 'hi' ? 'अपलोड किए गए दस्तावेज़' : 'Uploaded documents'} ({documents.length})
             </p>
             {documents.map((doc) => {
               const Icon = TYPE_ICONS[doc.type] || File;
               return (
-                <div key={doc.id} className="card p-4 flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
-                    <Icon size={20} className="text-[#2563EB]" />
+                <div key={doc.id} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.875rem',
+                  padding: '0.875rem 1rem',
+                  background: 'white',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-md)',
+                }}>
+                  <div style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 6,
+                    background: 'var(--color-surface-2)',
+                    border: '1px solid var(--color-border)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}>
+                    <Icon size={16} color="var(--color-text-secondary)" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[var(--color-text-primary)] truncate">{doc.name}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="primary" className="text-xs">{doc.type}</Badge>
-                      <span className="text-xs text-[var(--color-text-muted)]">{formatSize(doc.size)}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {doc.name}
+                    </p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: 2 }}>
+                      <Badge variant="muted">{doc.type}</Badge>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{formatSize(doc.size)}</span>
                     </div>
                   </div>
-                  <CheckCircle2 size={18} className="text-[var(--color-success)] flex-shrink-0" />
+                  <Check size={15} color="var(--color-primary)" style={{ flexShrink: 0 }} />
                   <button
                     onClick={() => removeDocument(doc.id)}
-                    className="p-1.5 rounded-lg hover:bg-red-50 text-[var(--color-text-muted)] hover:text-[var(--color-danger)] transition-colors"
+                    style={{
+                      padding: '0.375rem',
+                      borderRadius: 4,
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      color: 'var(--color-text-muted)',
+                      display: 'flex',
+                      transition: 'color 0.15s',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.color = 'var(--color-danger)'}
+                    onMouseLeave={e => e.currentTarget.style.color = 'var(--color-text-muted)'}
                   >
-                    <X size={16} />
+                    <X size={15} />
                   </button>
                 </div>
               );
@@ -212,21 +270,30 @@ export default function Documents() {
         )}
 
         {/* Actions */}
-        <div className="space-y-3">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           <Button
             id="btn-documents-continue"
-            variant="gradient"
+            variant="primary"
             size="xl"
-            className="w-full"
+            style={{ width: '100%' }}
             onClick={() => navigate('/patient/review')}
           >
             {t('documents.next')}
-            <ArrowRight size={20} />
+            <ArrowRight size={16} />
           </Button>
           <button
             id="btn-documents-skip"
             onClick={() => navigate('/patient/review')}
-            className="w-full text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-colors py-2"
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              fontSize: '0.8125rem',
+              color: 'var(--color-text-muted)',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'Inter, sans-serif',
+            }}
           >
             {t('documents.skip')}
           </button>

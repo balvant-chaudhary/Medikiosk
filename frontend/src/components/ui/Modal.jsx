@@ -22,26 +22,51 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+        className="absolute inset-0"
+        style={{ background: 'rgba(0, 0, 0, 0.4)' }}
         onClick={onClose}
       />
       <div className={`
-        relative bg-white rounded-[var(--radius-xl)] shadow-[var(--shadow-xl)]
+        relative bg-white
         w-full ${sizes[size]} max-h-[90vh] flex flex-col
         animate-fadeInUp
-      `}>
+      `}
+        style={{
+          borderRadius: 'var(--radius-lg)',
+          border: '1px solid var(--color-border)',
+          boxShadow: 'var(--shadow-xl)',
+        }}
+      >
         {title && (
-          <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--color-border)]">
-            <h3 className="text-xl font-semibold text-[var(--color-text-primary)]">{title}</h3>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '1rem 1.25rem',
+            borderBottom: '1px solid var(--color-border)',
+          }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>{title}</h3>
             <button
               onClick={onClose}
-              className="p-2 rounded-xl hover:bg-[var(--color-bg)] transition-colors text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
+              style={{
+                padding: '0.375rem',
+                borderRadius: 'var(--radius-md)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'var(--color-text-muted)',
+                display: 'flex',
+                alignItems: 'center',
+                transition: 'background 0.15s',
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'var(--color-surface-2)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'none'}
             >
-              <X size={20} />
+              <X size={18} />
             </button>
           </div>
         )}
-        <div className="overflow-y-auto flex-1 p-6">{children}</div>
+        <div className="overflow-y-auto flex-1" style={{ padding: '1.25rem' }}>{children}</div>
       </div>
     </div>
   );

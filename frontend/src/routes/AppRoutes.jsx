@@ -22,11 +22,18 @@ import PatientDetail  from '../pages/doctor/PatientDetail';
 
 // Admin pages
 import AdminDashboard from '../pages/admin/Dashboard';
+import AdminPatients  from '../pages/admin/Patients';
+import AdminDoctors   from '../pages/admin/Doctors';
+import AdminSettings  from '../pages/admin/Settings';
 
 function RequireAuth({ children, role }) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  
+  if (loading) return null;
+  
   if (!user) return <Navigate to="/doctor/login" replace />;
   if (role && user.role !== role) return <Navigate to="/doctor/login" replace />;
+  
   return children;
 }
 
@@ -63,6 +70,15 @@ export default function AppRoutes() {
       } />
       <Route path="/admin/analytics" element={
         <RequireAuth role="ADMIN"><AdminDashboard /></RequireAuth>
+      } />
+      <Route path="/admin/patients" element={
+        <RequireAuth role="ADMIN"><AdminPatients /></RequireAuth>
+      } />
+      <Route path="/admin/doctors" element={
+        <RequireAuth role="ADMIN"><AdminDoctors /></RequireAuth>
+      } />
+      <Route path="/admin/settings" element={
+        <RequireAuth role="ADMIN"><AdminSettings /></RequireAuth>
       } />
 
       {/* Fallback */}

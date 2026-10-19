@@ -7,16 +7,14 @@ export function Card({ children, className = '', glass = false, hover = false, o
       onClick={onClick}
       className={glass ? 'card-glass' : 'card'}
       style={{
-        ...(hover ? { transition: 'box-shadow 0.2s ease, transform 0.2s ease', cursor: 'pointer' } : {}),
+        ...(hover ? { transition: 'border-color 0.15s ease', cursor: 'pointer' } : {}),
         ...style,
       }}
       onMouseEnter={hover ? e => {
-        e.currentTarget.style.transform = 'translateY(-2px)';
-        e.currentTarget.style.boxShadow = 'var(--shadow-xl)';
+        e.currentTarget.style.borderColor = 'var(--color-primary)';
       } : undefined}
       onMouseLeave={hover ? e => {
-        e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.boxShadow = '';
+        e.currentTarget.style.borderColor = 'var(--color-border)';
       } : undefined}
     >
       {children}
@@ -27,7 +25,7 @@ export function Card({ children, className = '', glass = false, hover = false, o
 export function CardHeader({ children, className = '', style = {} }) {
   return (
     <div style={{
-      padding: '1.125rem 1.5rem',
+      padding: '1rem 1.25rem',
       borderBottom: '1px solid var(--color-border)',
       ...style,
     }}>
@@ -38,7 +36,7 @@ export function CardHeader({ children, className = '', style = {} }) {
 
 export function CardBody({ children, className = '', style = {} }) {
   return (
-    <div style={{ padding: '1.25rem 1.5rem', ...style }}>
+    <div style={{ padding: '1.125rem 1.25rem', ...style }}>
       {children}
     </div>
   );
@@ -47,7 +45,7 @@ export function CardBody({ children, className = '', style = {} }) {
 export function CardFooter({ children, style = {} }) {
   return (
     <div style={{
-      padding: '0.875rem 1.5rem',
+      padding: '0.75rem 1.25rem',
       borderTop: '1px solid var(--color-border)',
       background: 'var(--color-surface-2)',
       borderRadius: '0 0 var(--radius-lg) var(--radius-lg)',

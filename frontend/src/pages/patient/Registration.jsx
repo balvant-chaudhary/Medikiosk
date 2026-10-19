@@ -11,6 +11,21 @@ import { patientAPI, consentAPI } from '../../services/api';
 const GENDERS_EN = ['Male', 'Female', 'Other', 'Prefer not to say'];
 const GENDERS_HI = ['पुरुष', 'महिला', 'अन्य', 'बताना नहीं चाहते'];
 
+/* Shared input field styles */
+const inputStyle = (hasError) => ({
+  width: '100%',
+  padding: '0.6875rem 0.875rem',
+  border: `1px solid ${hasError ? '#DC2626' : 'var(--color-border)'}`,
+  borderRadius: 'var(--radius-md)',
+  background: 'white',
+  color: 'var(--color-text-primary)',
+  fontSize: '0.9375rem',
+  fontFamily: 'Inter, sans-serif',
+  outline: 'none',
+  transition: 'border-color 0.15s ease',
+  minHeight: 48,
+});
+
 export default function Registration() {
   const navigate = useNavigate();
   const { setRegistration, setPatientType, patientType, language, setPatientId } = usePatient();
@@ -42,25 +57,17 @@ export default function Registration() {
     
     setLoading(true);
     try {
-      // 1. Create Patient
       const { data } = await patientAPI.create(form);
       const { patient, token } = data;
-
-      // 2. Save token
       localStorage.setItem('mk_patient_token', token);
-
-      // 3. Post Consent (collected in the previous step)
       await consentAPI.create({
         patientId: patient._id,
         accepted: true,
         type: 'general_intake',
         version: '1.0'
       });
-
-      // 4. Update context
       setRegistration(patient);
       setPatientId(patient._id);
-
       navigate('/patient/interview');
     } catch (err) {
       setErrors({ phone: err.response?.data?.message || 'Registration failed' });
@@ -69,48 +76,40 @@ export default function Registration() {
     }
   };
 
-  const field = (label, id, icon, input) => (
-    <div>
-      <label htmlFor={id} className="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">
-        {label}
-      </label>
-      <div className={`
-        flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 bg-white transition-all duration-150 touch-target
-        ${errors[id] ? 'border-[var(--color-danger)] focus-within:border-[var(--color-danger)]' : 'border-[var(--color-border)] focus-within:border-[#2563EB]'}
-      `}>
-        <div className="text-[var(--color-text-muted)] flex-shrink-0">
-          {React.createElement(icon, { size: 20 })}
-        </div>
-        <div className="flex-1 w-full relative">
-          {input}
-        </div>
-      </div>
-      {errors[id] && <p className="mt-1.5 text-xs text-[var(--color-danger)] font-medium">{errors[id]}</p>}
-    </div>
-  );
-
-  const inputClass = (id) => `
-    w-full bg-transparent text-[var(--color-text-primary)] text-base outline-none
-  `;
+  const focusStyle = (id) => ({
+    outline: 'none',
+    borderColor: errors[id] ? '#DC2626' : 'var(--color-primary)',
+    boxShadow: errors[id] ? 'none' : '0 0 0 2px rgba(22, 119, 101, 0.1)',
+  });
 
   return (
     <PatientLayout showProgress currentStep={3}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-        <div style={{ textAlign: 'center' }}>
-          <h1 style={{ fontSize: '1.875rem', fontWeight: 800, color: 'var(--color-text-primary)' }}>{t('registration.title')}</h1>
-          <p style={{ color: 'var(--color-text-secondary)', marginTop: '0.375rem', fontSize: '1rem' }}>{t('registration.subtitle')}</p>
+        {/* Header */}
+        <div>
+          <p style={{
+            fontSize: '0.6875rem',
+            fontWeight: 600,
+            color: 'var(--color-text-muted)',
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            marginBottom: '0.5rem',
+          }}>
+            Step 3 of 6
+          </p>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '0.375rem' }}>
+            {t('registration.title')}
+          </h1>
+          <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+            {t('registration.subtitle')}
+          </p>
         </div>
 
         {/* Patient type toggle */}
         <div style={{
-          background: 'white',
-          border: '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-lg)',
-          boxShadow: 'var(--shadow-md)',
-          padding: '0.5rem',
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
-          gap: '0.375rem',
+          gap: '0.5rem',
         }}>
           {[
             { type: 'new',      icon: UserPlus,  label: t('registration.newPatient') },
@@ -125,108 +124,127 @@ export default function Registration() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '0.5rem',
-                padding: '0.875rem 1rem',
+                padding: '0.75rem 1rem',
                 borderRadius: 'var(--radius-md)',
-                border: 'none',
+                border: `1px solid ${patientType === type ? 'var(--color-primary)' : 'var(--color-border)'}`,
                 cursor: 'pointer',
-                fontFamily: "'Inter', sans-serif",
-                fontSize: '0.9375rem',
-                fontWeight: 600,
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '0.875rem',
+                fontWeight: 500,
                 transition: 'all 0.15s ease',
-                background: patientType === type ? '#2563EB' : 'transparent',
-                color: patientType === type ? 'white' : 'var(--color-text-secondary)',
-                boxShadow: patientType === type ? '0 2px 8px rgba(37,99,235,0.3)' : 'none',
+                background: patientType === type ? 'var(--color-accent-light)' : 'white',
+                color: patientType === type ? 'var(--color-primary)' : 'var(--color-text-secondary)',
               }}
             >
-              <Icon size={20} />
+              <Icon size={16} />
               {label}
             </button>
           ))}
         </div>
 
-        <form onSubmit={handleSubmit} className="card" style={{ padding: '1.75rem 2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          {/* Name */}
-          {field(t('registration.name'), 'name', User,
+        {/* Form */}
+        <form onSubmit={handleSubmit} style={{
+          background: 'white',
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '1.5rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1.125rem',
+        }}>
+
+          {/* Full Name */}
+          <div>
+            <label htmlFor="name" style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: '0.375rem' }}>
+              {t('registration.name')}
+            </label>
             <input
               id="name"
               type="text"
-              className={inputClass('name')}
+              style={inputStyle(errors.name)}
               value={form.name}
               onChange={e => { setForm(p => ({...p, name: e.target.value})); setErrors(p => ({...p, name: ''})); }}
               placeholder={language === 'hi' ? 'अपना पूरा नाम लिखें' : 'Enter your full name'}
               autoComplete="name"
+              onFocus={e => Object.assign(e.target.style, focusStyle('name'))}
+              onBlur={e => { e.target.style.borderColor = errors.name ? '#DC2626' : 'var(--color-border)'; e.target.style.boxShadow = 'none'; }}
             />
-          )}
+            {errors.name && <p style={{ marginTop: '0.375rem', fontSize: '0.75rem', color: '#DC2626' }}>{errors.name}</p>}
+          </div>
 
           {/* Age + Gender */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.875rem' }}>
             <div>
-              <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">
+              <label htmlFor="age" style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: '0.375rem' }}>
                 {t('registration.age')}
               </label>
-              <div className={`
-                flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 bg-white transition-all duration-150 touch-target
-                ${errors.age ? 'border-[var(--color-danger)] focus-within:border-[var(--color-danger)]' : 'border-[var(--color-border)] focus-within:border-[#2563EB]'}
-              `}>
-                <div className="text-[var(--color-text-muted)] flex-shrink-0">
-                  <Calendar size={20} />
-                </div>
-                <input
-                  id="age"
-                  type="number"
-                  min="1" max="120"
-                  className="w-full bg-transparent text-[var(--color-text-primary)] text-base outline-none"
-                  value={form.age}
-                  onChange={e => { setForm(p => ({...p, age: e.target.value})); setErrors(p => ({...p, age: ''})); }}
-                  placeholder={language === 'hi' ? 'आयु' : 'Age'}
-                />
-              </div>
-              {errors.age && <p className="mt-1.5 text-xs text-[var(--color-danger)] font-medium">{errors.age}</p>}
+              <input
+                id="age"
+                type="number"
+                min="1" max="120"
+                style={inputStyle(errors.age)}
+                value={form.age}
+                onChange={e => { setForm(p => ({...p, age: e.target.value})); setErrors(p => ({...p, age: ''})); }}
+                placeholder={language === 'hi' ? 'आयु' : 'Age'}
+                onFocus={e => Object.assign(e.target.style, focusStyle('age'))}
+                onBlur={e => { e.target.style.borderColor = errors.age ? '#DC2626' : 'var(--color-border)'; e.target.style.boxShadow = 'none'; }}
+              />
+              {errors.age && <p style={{ marginTop: '0.375rem', fontSize: '0.75rem', color: '#DC2626' }}>{errors.age}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">
+              <label htmlFor="gender" style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: '0.375rem' }}>
                 {t('registration.gender')}
               </label>
               <select
                 id="gender"
-                className={`w-full px-4 py-3.5 rounded-xl border-2 bg-white text-[var(--color-text-primary)] text-base outline-none touch-target min-h-[56px] md:min-h-[64px] ${errors.gender ? 'border-[var(--color-danger)]' : 'border-[var(--color-border)] focus:border-[#2563EB]'}`}
+                style={{ ...inputStyle(errors.gender), cursor: 'pointer' }}
                 value={form.gender}
                 onChange={e => { setForm(p => ({...p, gender: e.target.value})); setErrors(p => ({...p, gender: ''})); }}
+                onFocus={e => Object.assign(e.target.style, focusStyle('gender'))}
+                onBlur={e => { e.target.style.borderColor = errors.gender ? '#DC2626' : 'var(--color-border)'; e.target.style.boxShadow = 'none'; }}
               >
                 <option value="">{language === 'hi' ? 'चुनें' : 'Select'}</option>
                 {genders.map(g => <option key={g} value={g}>{g}</option>)}
               </select>
-              {errors.gender && <p className="mt-1 text-xs text-[var(--color-danger)]">{errors.gender}</p>}
+              {errors.gender && <p style={{ marginTop: '0.375rem', fontSize: '0.75rem', color: '#DC2626' }}>{errors.gender}</p>}
             </div>
           </div>
 
           {/* Phone */}
-          {field(t('registration.phone'), 'phone', Phone,
+          <div>
+            <label htmlFor="phone" style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: '0.375rem' }}>
+              {t('registration.phone')}
+            </label>
             <input
               id="phone"
               type="tel"
-              className={inputClass('phone')}
+              style={inputStyle(errors.phone)}
               value={form.phone}
               onChange={e => { setForm(p => ({...p, phone: e.target.value.replace(/\D/g,'')})); setErrors(p => ({...p, phone: ''})); }}
               placeholder={language === 'hi' ? '10 अंकों का फोन नंबर' : '10-digit mobile number'}
               maxLength={10}
+              onFocus={e => Object.assign(e.target.style, focusStyle('phone'))}
+              onBlur={e => { e.target.style.borderColor = errors.phone ? '#DC2626' : 'var(--color-border)'; e.target.style.boxShadow = 'none'; }}
             />
-          )}
+            {errors.phone && <p style={{ marginTop: '0.375rem', fontSize: '0.75rem', color: '#DC2626' }}>{errors.phone}</p>}
+          </div>
 
-          {/* ABHA ID (optional) */}
+          {/* ABHA ID (optional, existing patients) */}
           {patientType === 'existing' && (
             <div>
-              <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">
+              <label htmlFor="abhaId" style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: '0.375rem' }}>
                 {t('registration.abhaId')}
               </label>
               <input
                 id="abhaId"
                 type="text"
-                className="w-full px-4 py-3.5 rounded-xl border-2 border-[var(--color-border)] focus:border-[#2563EB] bg-white text-[var(--color-text-primary)] text-base outline-none touch-target"
+                style={inputStyle(false)}
                 value={form.abhaId}
                 onChange={e => setForm(p => ({...p, abhaId: e.target.value}))}
                 placeholder="XX-XXXX-XXXX-XXXX"
+                onFocus={e => Object.assign(e.target.style, focusStyle('abhaId'))}
+                onBlur={e => { e.target.style.borderColor = 'var(--color-border)'; e.target.style.boxShadow = 'none'; }}
               />
             </div>
           )}
@@ -234,13 +252,13 @@ export default function Registration() {
           <Button
             id="btn-registration-continue"
             type="submit"
-            variant="gradient"
+            variant="primary"
             size="xl"
             loading={loading}
-            className="w-full mt-2"
+            style={{ width: '100%', marginTop: '0.25rem' }}
           >
             {t('registration.next')}
-            {!loading && <ArrowRight size={20} />}
+            {!loading && <ArrowRight size={16} />}
           </Button>
         </form>
       </div>
